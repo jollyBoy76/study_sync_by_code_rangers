@@ -1,7 +1,7 @@
 'use client'
 
-import { cn } from '@/utils/tailwind'
-import { createClient } from '@/supabase/client'
+import { cn } from '@/lib/utils'
+import { supabaseClient as supabase } from '@/lib/supabase.client'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -14,21 +14,20 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'div'>) {
-  const [email, setEmail] = useState('')
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError]       = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const router   = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
     setIsLoading(true)
     setError(null)
 
@@ -38,8 +37,7 @@ export function LoginForm({
         password,
       })
       if (error) throw error
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push('/protected')
+      router.push('/dashboard')
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
@@ -74,7 +72,7 @@ export function LoginForm({
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                   <Link
-                    href="/auth/forgot-password"
+                    href="/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
@@ -95,10 +93,7 @@ export function LoginForm({
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{' '}
-              <Link
-                href="/auth/sign-up"
-                className="underline underline-offset-4"
-              >
+              <Link href="/sign-up" className="underline underline-offset-4">
                 Sign up
               </Link>
             </div>

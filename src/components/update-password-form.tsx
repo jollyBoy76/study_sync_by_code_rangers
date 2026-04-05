@@ -1,7 +1,7 @@
 'use client'
 
-import { cn } from '@/utils/tailwind'
-import { createClient } from '@/supabase/client'
+import { cn } from '@/lib/utils'
+import { supabaseClient as supabase } from '@/lib/supabase.client'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 export function UpdatePasswordForm({
   className,
@@ -26,7 +26,6 @@ export function UpdatePasswordForm({
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
     setIsLoading(true)
     setError(null)
 
@@ -34,7 +33,7 @@ export function UpdatePasswordForm({
       const { error } = await supabase.auth.updateUser({ password })
       if (error) throw error
       // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push('/protected')
+      router.push('/dashboard')
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {

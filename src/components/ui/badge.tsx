@@ -1,37 +1,53 @@
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from "@/lib/utils";
 
-import { cn } from '@/utils/tailwind'
+export type BadgeVariant =
+  | "assignment"
+  | "exam_prep"
+  | "reading"
+  | "project"
+  | "other"
+  | "done"
+  | "in_progress"
+  | "todo";
 
-const badgeVariants = cva(
-  'inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-  {
-    variants: {
-      variant: {
-        default:
-          'border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80',
-        secondary:
-          'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        destructive:
-          'border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80',
-        outline: 'text-foreground',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  },
-)
+const VARIANT_CLASSES: Record<BadgeVariant, string> = {
+  assignment:  "bg-blue-50   text-blue-800   dark:bg-blue-950  dark:text-blue-200",
+  exam_prep:   "bg-red-50    text-red-800    dark:bg-red-950   dark:text-red-200",
+  reading:     "bg-teal-50   text-teal-800   dark:bg-teal-950  dark:text-teal-200",
+  project:     "bg-purple-50 text-purple-800 dark:bg-purple-950 dark:text-purple-200",
+  other:       "bg-gray-100  text-gray-700   dark:bg-gray-800  dark:text-gray-300",
+  done:        "bg-green-50  text-green-800  dark:bg-green-950 dark:text-green-200",
+  in_progress: "bg-amber-50  text-amber-800  dark:bg-amber-950 dark:text-amber-200",
+  todo:        "bg-gray-100  text-gray-600   dark:bg-gray-800  dark:text-gray-400",
+};
 
-export interface BadgeProps
-  extends
-    React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+const VARIANT_LABELS: Record<BadgeVariant, string> = {
+  assignment:  "Assignment",
+  exam_prep:   "Exam Prep",
+  reading:     "Reading",
+  project:     "Project",
+  other:       "Other",
+  done:        "Done",
+  in_progress: "In Progress",
+  todo:        "To Do",
+};
 
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
-  )
+interface BadgeProps {
+  variant: BadgeVariant;
+  label?: string;
+  className?: string;
 }
 
-export { Badge, badgeVariants }
+export function Badge({ variant, label, className }: BadgeProps) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium",
+        VARIANT_CLASSES[variant],
+        className
+      )}
+    >
+      {label ?? VARIANT_LABELS[variant]}
+    </span>
+  );
+}

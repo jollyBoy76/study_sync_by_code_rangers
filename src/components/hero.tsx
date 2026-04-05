@@ -1,6 +1,4 @@
 import { NextLogo } from './next-logo'
-import { SupabaseLogo } from './supabase-logo'
-
 export function Hero() {
   return (
     <div className="flex flex-col items-center gap-16">
@@ -10,7 +8,7 @@ export function Hero() {
           target="_blank"
           rel="noreferrer"
         >
-          <SupabaseLogo />
+          
         </a>
         <span className="h-6 rotate-45 border-l" />
         <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
