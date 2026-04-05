@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { 
   Dialog, 
   DialogContent, 
@@ -18,14 +19,19 @@ interface JoinRequestsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   groupId: string;
+  onSuccess?: () => void;
 }
 
-export function JoinRequestsModal({ open, onOpenChange, groupId }: JoinRequestsModalProps) {
-  const { requests, loading } = useJoinRequests(groupId);
+export function JoinRequestsModal({ open, onOpenChange, groupId, onSuccess }: JoinRequestsModalProps) {
+  const router = useRouter();
+  const { requests, loading, refetch } = useJoinRequests(groupId);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
 
   const handleUpdateStatus = async (requestId: string, status: 'approved' | 'rejected') => {
     setProcessingId(requestId);
+    setFeedback(null); 
+
     try {
       const { error } = await supabase
         .from("join_requests")
@@ -33,8 +39,24 @@ export function JoinRequestsModal({ open, onOpenChange, groupId }: JoinRequestsM
         .eq("id", requestId);
 
       if (error) throw error;
-    } catch (error) {
-      console.error(`Failed to ${status} request:`, error);
+
+      // 3. SET FEEDBACK MESSAGE
+      setFeedback({ 
+        msg: `Request ${status === 'approved' ? 'accepted' : 'rejected'}!`, 
+        type: 'success' 
+      });
+
+      // 4. REFRESH LOCAL LIST (Modal stays open, list updates)
+      await refetch();
+      
+      // 5. REFRESH THE SERVER PAGE (The "1" badge in the background updates)
+      router.refresh(); 
+
+      setTimeout(() => setFeedback(null), 2000);;
+
+    } catch (error: any) {
+      console.error(`Failed to ${status} request:`, error.message);
+      setFeedback({ msg: "Failed to update request", type: 'error' });
     } finally {
       setProcessingId(null);
     }
@@ -49,6 +71,20 @@ export function JoinRequestsModal({ open, onOpenChange, groupId }: JoinRequestsM
             Review users who have requested to join this group.
           </DialogDescription>
         </DialogHeader>
+
+        {/* --- GREEN/RED FEEDBACK BOX --- */}
+        {feedback && (
+          <div className={`p-3 rounded-lg border text-sm font-medium animate-in fade-in slide-in-from-top-2 ${
+            feedback.type === 'success' 
+              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600' 
+              : 'bg-destructive/10 border-destructive/20 text-destructive'
+          }`}>
+            <div className="flex items-center gap-2">
+              {feedback.type === 'success' ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
+              {feedback.msg}
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col min-h-[200px] max-h-[400px] overflow-y-auto pr-2 mt-2 space-y-3 scrollbar-thin">
           {loading ? (
@@ -97,7 +133,7 @@ export function JoinRequestsModal({ open, onOpenChange, groupId }: JoinRequestsM
                       disabled={isProcessing}
                       onClick={() => handleUpdateStatus(request.id, 'approved')}
                     >
-                      <Check className="h-4 w-4" />
+                      {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>

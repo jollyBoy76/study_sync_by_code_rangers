@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabaseClient as supabase } from '@/lib/supabase.client'
 
 export interface JoinRequest {
@@ -23,7 +23,12 @@ export function useJoinRequests(groupId: string) {
 
   const { data, error } = await supabase
     .from('join_requests')
-    .select(`*, profiles(full_name)`)
+    .select(`
+      *,
+      profiles!inner (
+        full_name
+      )
+    `) // !inner ensures we only get requests where a profile exists
     .eq('group_id', groupId)
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
