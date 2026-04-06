@@ -19,10 +19,15 @@ export function useTasks(groupId: string) {
       .eq('group_id', groupId)
       .order('created_at', { ascending: false })
 
-    if (error) {
-      console.error(error)
-      return
-    }
+// ✅ NEW CODE (shows the real problem)
+if (error) {
+  console.error("SUPABASE ERROR DETAILS:", {
+    message: error.message,
+    details: error.details,
+    hint: error.hint,
+    code: error.code
+  });
+}
 
     setTasks(data || [])
     setLoading(false)
