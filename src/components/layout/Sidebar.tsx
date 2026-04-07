@@ -9,6 +9,7 @@ import { SidebarGroupList } from "@/components/layout/SidebarGroupList";
 import { CreateGroupModal } from "@/components/group/CreateGroupModal";
 import { cn } from "@/lib/utils";
 
+
 import { Search } from 'lucide-react'
 import { GroupSearchModal } from '@/components/group/GroupSearchModal'
 
