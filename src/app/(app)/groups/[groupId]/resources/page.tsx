@@ -35,7 +35,8 @@ export default function GroupResourcesPage({ params }: GroupResourcesPageProps) 
 
   const { resources, loading, refetch } = useResources(groupId);
   const { members } = useMembers(groupId);
-
+  const [groupCreatedBy, setGroupCreatedBy] = useState("")
+  
   const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null)
   const [viewOpen, setViewOpen]                     = useState(false)
   const [editOpen, setEditOpen]                     = useState(false)
@@ -137,7 +138,9 @@ export default function GroupResourcesPage({ params }: GroupResourcesPageProps) 
         open={viewOpen}
         onOpenChange={setViewOpen}
         onEditClick={handleEditClick}
+        onDeleteSuccess={() => refetch()}  // ← add
         currentUserId={user?.id ?? ""}
+        groupCreatedBy={groupCreatedBy}    // ← add
       />
 
       {selectedResource && (

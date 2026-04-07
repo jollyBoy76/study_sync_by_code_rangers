@@ -68,12 +68,12 @@ export function ResourceEditModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[95vh] flex flex-col p-0 gap-0">
+      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
         <DialogHeader className="p-6">
           <DialogTitle>Edit Resource</DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 px-6">
+        <ScrollArea className="flex-1 min-h-0 px-6">
           <div className="space-y-6 pb-6">
             {/* Title Section */}
             <div className="space-y-2">
@@ -88,14 +88,26 @@ export function ResourceEditModal({
 
             {/* Markdown Editor Section */}
             <div className="space-y-2" data-color-mode="light">
-              <Label>Content</Label>
+            <Label className="text-sm font-bold">Content</Label>
+            <div className="border rounded-md overflow-hidden">
               <MDEditor
                 value={content}
                 onChange={(val) => setContent(val || "")}
-                height={350}
-                preview="edit" // Starts in edit mode for better focus
+                preview="edit"
+                // 1. Set height to 'auto' so it grows with text
+                height="auto" 
+                // 2. Set a min-height so it's not a tiny line when empty
+                minHeight={300}
+                // 3. Disable the internal preview scroll
+                overflow={false} 
+                // 4. Hide the bottom status bar to save space
+                hideToolbar={false} 
               />
             </div>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-1">
+              Scroll the modal to see more content
+            </p>
+          </div>
 
             <Separator />
 

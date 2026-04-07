@@ -15,7 +15,6 @@ export function useResourceMutations(groupId: string) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
 
-      // Insert the resource
       const { data: resource, error: resError } = await supabase
         .from("resources")
         .insert({
@@ -29,8 +28,6 @@ export function useResourceMutations(groupId: string) {
 
       if (resError) throw resError;
 
-      // CRITICAL: Automatically add the creator as an editor
-      // Otherwise, RLS will block them from updating it later!
       const { error: editError } = await supabase
         .from("resource_editors")
         .insert({
@@ -61,7 +58,7 @@ export function useResourceMutations(groupId: string) {
         .update({ 
           title, 
           content,
-          last_edited_by: user?.id // Track who made the last change
+          last_edited_by: user?.id 
         })
         .eq("id", resourceId);
 
@@ -77,7 +74,28 @@ export function useResourceMutations(groupId: string) {
     }
   };
 
-  // 3. Add a collaborator/editor
+  // 3. Delete a resource (The New Addition)
+  const deleteResource = async (resourceId: string) => {
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("resources")
+        .delete()
+        .eq("id", resourceId);
+
+      if (error) throw error;
+
+      router.refresh();
+      return { success: true, error: null };
+    } catch (error: any) {
+      console.error("Error deleting resource:", error.message);
+      return { success: false, error };
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 4. Add a collaborator/editor
   const addEditor = async (resourceId: string, userId: string) => {
     try {
       const { error } = await supabase
@@ -94,7 +112,7 @@ export function useResourceMutations(groupId: string) {
     }
   };
 
-  // 4. Remove a collaborator/editor
+  // 5. Remove a collaborator/editor
   const removeEditor = async (resourceId: string, userId: string) => {
     try {
       const { error } = await supabase
@@ -116,6 +134,7 @@ export function useResourceMutations(groupId: string) {
   return {
     createResource,
     updateResource,
+    deleteResource, // <-- Now exported
     addEditor,
     removeEditor,
     saving,
