@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 
 export type BadgeVariant =
@@ -39,15 +41,18 @@ interface BadgeProps {
 }
 
 export function Badge({ variant, label, className }: BadgeProps) {
+  const activeClass = VARIANT_CLASSES[variant] || VARIANT_CLASSES.other;
+  const activeLabel = label ?? (VARIANT_LABELS[variant] || "Other");
+
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium",
-        VARIANT_CLASSES[variant],
+        "inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium transition-colors",
+        activeClass,
         className
       )}
     >
-      {label ?? VARIANT_LABELS[variant]}
+      {activeLabel}
     </span>
   );
 }
